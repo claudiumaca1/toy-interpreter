@@ -41,4 +41,14 @@ class MyStackTest {
         var ex = assertThrows(ADTException.class, () -> stack.pop());
         assertEquals("pop from an empty stack", ex.getMessage());
     }
+
+    // ---- Lab 5 (A3): toList
+
+    @Test
+    void toListHasTheTopOfTheStackFirst() {
+        stack.push(1);
+        stack.push(2);
+        stack.push(3);
+        assertEquals(java.util.List.of(3, 2, 1), stack.toList());
+    }
 }

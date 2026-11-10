@@ -39,4 +39,13 @@ class MyListTest {
         list.add("x");
         assertThrows(ADTException.class, () -> list.get(-1));
     }
+
+    // ---- Lab 5 (A3): toList
+
+    @Test
+    void toListKeepsTheInsertionOrder() {
+        list.add("x");
+        list.add("y");
+        assertEquals(java.util.List.of("x", "y"), list.toList());
+    }
 }

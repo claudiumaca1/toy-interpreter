@@ -43,4 +43,25 @@ class MyDictionaryTest {
     void updateOfMissingKeyThrows() {
         assertThrows(ADTException.class, () -> dict.update("missing", 1));
     }
+
+    // ---- Lab 5 (A3): remove and toMap
+
+    @Test
+    void removeDeletesTheKey() throws ADTException {
+        dict.put("a", 5);
+        dict.remove("a");
+        assertFalse(dict.isDefined("a"));
+    }
+
+    @Test
+    void removeOfMissingKeyThrows() {
+        assertThrows(ADTException.class, () -> dict.remove("missing"));
+    }
+
+    @Test
+    void toMapReturnsACopyOfTheContent() {
+        dict.put("a", 5);
+        assertEquals(java.util.Map.of("a", 5), dict.toMap());
+        assertThrows(UnsupportedOperationException.class, () -> dict.toMap().put("b", 1));
+    }
 }

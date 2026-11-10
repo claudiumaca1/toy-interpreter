@@ -2,6 +2,7 @@ package interpreter.model.value;
 
 import interpreter.model.type.BoolType;
 import interpreter.model.type.IntType;
+import interpreter.model.type.StringType;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -27,5 +28,24 @@ class ValueTest {
     void valuesWithDifferentContentAreNotEqual() {
         assertNotEquals(new IntValue(3), new IntValue(4));
         assertNotEquals(new BoolValue(true), new BoolValue(false));
+    }
+
+    // ---- Lab 5 (A3): string values
+
+    @Test
+    void stringValueHasStringType() {
+        assertEquals(new StringType(), new StringValue("a").getType());
+    }
+
+    @Test
+    void equalStringValuesAreEqualAndHaveTheSameHashCode() {
+        assertEquals(new StringValue("test.in"), new StringValue("test.in"));
+        assertEquals(new StringValue("test.in").hashCode(), new StringValue("test.in").hashCode());
+        assertNotEquals(new StringValue("a"), new StringValue("b"));
+    }
+
+    @Test
+    void stringValueIsPrintedBetweenQuotes() {
+        assertEquals("\"abc\"", new StringValue("abc").toString());
     }
 }

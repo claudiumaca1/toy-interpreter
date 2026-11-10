@@ -29,4 +29,10 @@ public class MyList<T> implements IList<T> {
     public String toString() {
         return list.toString();
     }
+
+    // Lab 5 (A3): a copy of the elements, in insertion order
+    @Override
+    public List<T> toList() {
+        return new ArrayList<>(list);
+    }
 }

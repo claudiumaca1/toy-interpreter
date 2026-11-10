@@ -24,6 +24,7 @@ application {
 
 tasks.named<JavaExec>("run") {
     standardInput = System.`in`   // keyboard input for the text menu
+    workingDir = rootDir          // Lab 5 (A3): test.in and the log files stay in the project root
 }
 
 tasks.named<Test>("test") {

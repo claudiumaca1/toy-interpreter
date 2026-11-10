@@ -4,6 +4,8 @@ import interpreter.exceptions.ADTException;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MyStack<T> implements IStack<T> {
     private final Deque<T> stack = new ArrayDeque<>();
@@ -28,5 +30,11 @@ public class MyStack<T> implements IStack<T> {
     @Override
     public String toString() {
         return stack.toString();
+    }
+
+    // Lab 5 (A3): a copy of the elements, the top of the stack first
+    @Override
+    public List<T> toList() {
+        return new ArrayList<>(stack);
     }
 }

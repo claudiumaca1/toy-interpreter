@@ -4,9 +4,6 @@ import interpreter.exceptions.ExpressionException;
 import interpreter.exceptions.MyException;
 import interpreter.exceptions.StatementException;
 import interpreter.model.PrgState;
-import interpreter.model.adt.MyDictionary;
-import interpreter.model.adt.MyList;
-import interpreter.model.adt.MyStack;
 import interpreter.model.exp.*;
 import interpreter.model.stmt.*;
 import interpreter.model.type.BoolType;
@@ -21,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ControllerTest {
     private static PrgState newState(IStmt program) {
-        return new PrgState(new MyStack<>(), new MyDictionary<>(), new MyList<>(), program);
+        return PrgState.of(program);   // Lab 5 (A3): PrgState.of instead of new PrgState(...)
     }
 
     // runs the whole program, display is off
