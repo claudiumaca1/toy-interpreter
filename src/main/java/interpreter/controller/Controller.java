@@ -23,11 +23,15 @@ public class Controller {
         return crtStmt.execute(state);
     }
 
+    // Lab 6 (A3): changed - the state is also written in the log file, at the beginning
+    // and after every step
     public void allStep() throws MyException {
         PrgState prg = repo.getCrtPrg();
+        repo.logPrgStateExec();
         display(prg);
         while (!prg.getExeStack().isEmpty()) {
             oneStep(prg);
+            repo.logPrgStateExec();
             display(prg);
         }
     }

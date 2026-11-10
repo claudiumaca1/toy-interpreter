@@ -42,3 +42,6 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+### Lab 6 (A3): log files written by the interpreter ###
+log*.txt

@@ -13,18 +13,23 @@ import interpreter.model.value.IntValue;
 import interpreter.repository.Repository;
 import interpreter.view.Examples;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class ControllerTest {
+    @TempDir
+    Path dir;                                    // Lab 6 (A3): a fresh folder for the log files
     private static PrgState newState(IStmt program) {
         return PrgState.of(program);   // Lab 5 (A3): PrgState.of instead of new PrgState(...)
     }
 
-    // runs the whole program, display is off
-    private static PrgState run(IStmt program) throws MyException {
+    // Lab 6 (A3): the repository now needs a log file, it is written in the temporary folder
+    private PrgState run(IStmt program) throws MyException {
         PrgState state = newState(program);
-        new Controller(new Repository(state), false).allStep();
+        new Controller(new Repository(state, dir.resolve("log.txt").toString()), false).allStep();
         return state;
     }
 
@@ -74,7 +79,7 @@ class ControllerTest {
     @Test
     void oneStepExecutesExactlyOneStatement() throws MyException {
         PrgState state = newState(Examples.EX1);
-        Controller ctrl = new Controller(new Repository(state), false);
+        Controller ctrl = new Controller(new Repository(state, dir.resolve("log.txt").toString()), false);
 
         ctrl.oneStep(state); // S1: Stmt1; Stmt2 -> {int v | v = 2; print(v)}
         assertFalse(state.getSymTable().isDefined("v"));
@@ -86,7 +91,7 @@ class ControllerTest {
     @Test
     void oneStepOnEmptyStackThrows() throws MyException {
         PrgState state = newState(new NopStmt());
-        Controller ctrl = new Controller(new Repository(state), false);
+        Controller ctrl = new Controller(new Repository(state, dir.resolve("log.txt").toString()), false);
         ctrl.oneStep(state); // runs the nop, the stack is now empty
 
         var ex = assertThrows(StatementException.class, () -> ctrl.oneStep(state));
@@ -166,5 +171,66 @@ class ControllerTest {
         PrgState state = run(p);
         assertEquals(1, state.getOut().size());
         assertEquals(new IntValue(7), state.getOut().get(0));
+    }
+    // ---- Lab 6 (A3): Ex4 (files), Ex5 (relational expression) and the log file
+
+    @Test
+    void example4ReadsBothNumbersAndClosesTheFile() throws Exception {
+        Path in = dir.resolve("test.in");
+        Files.writeString(in, "15\n50\n");
+        PrgState state = run(Examples.fileExample(in.toString()));
+        assertEquals(2, state.getOut().size());
+        assertEquals(new IntValue(15), state.getOut().get(0));
+        assertEquals(new IntValue(50), state.getOut().get(1));
+        assertTrue(state.getFileTable().toMap().isEmpty());
+    }
+
+    @Test
+    void example4WithAnEmptyFilePrintsZeroZero() throws Exception {
+        Path in = dir.resolve("empty.in");
+        Files.writeString(in, "");
+        PrgState state = run(Examples.fileExample(in.toString()));
+        assertEquals(new IntValue(0), state.getOut().get(0));
+        assertEquals(new IntValue(0), state.getOut().get(1));
+    }
+
+    @Test
+    void example4WithAMissingFileThrows() {
+        IStmt p = Examples.fileExample(dir.resolve("missing.in").toString());
+        assertThrows(StatementException.class, () -> run(p));
+    }
+
+    @Test
+    void example5Prints5() throws MyException {
+        PrgState state = run(Examples.EX5);
+        assertEquals(1, state.getOut().size());
+        assertEquals(new IntValue(5), state.getOut().get(0));
+    }
+
+    @Test
+    void logFileContainsTheFourSectionsInOrder() throws Exception {
+        run(Examples.EX1);
+        String log = Files.readString(dir.resolve("log.txt"));
+        int a = log.indexOf("ExeStack:"), b = log.indexOf("SymTable:"),
+                c = log.indexOf("Out:"), d = log.indexOf("FileTable:");
+        assertTrue(0 <= a && a < b && b < c && c < d);
+    }
+
+    @Test
+    void logFileHoldsTheInitialStateAndTheStateAfterEveryStep() throws Exception {
+        run(Examples.EX1);          // ex1 has 5 steps: 1 composition, 1 composition, 3 statements
+        String log = Files.readString(dir.resolve("log.txt"));
+        int sections = log.split("ExeStack:", -1).length - 1;
+        assertEquals(6, sections);  // the initial state + 5 steps
+        assertTrue(log.contains("v --> 2"));
+    }
+
+    @Test
+    void logFileShowsTheOpenFile() throws Exception {
+        Path in = dir.resolve("test.in");
+        Files.writeString(in, "15\n50\n");
+        run(Examples.fileExample(in.toString()));
+        String log = Files.readString(dir.resolve("log.txt"));
+        assertTrue(log.contains(in.toString()));
     }
 }
