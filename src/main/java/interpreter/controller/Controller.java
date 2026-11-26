@@ -7,7 +7,7 @@ import interpreter.model.stmt.IStmt;
 import interpreter.repository.IRepository;
 
 import static interpreter.controller.GarbageCollector.getAddrFromSymTable;
-import static interpreter.controller.GarbageCollector.unsafeGarbageCollector;
+import static interpreter.controller.GarbageCollector.safeGarbageCollector;
 
 public class Controller {
     private final IRepository repo;
@@ -30,6 +30,7 @@ public class Controller {
     // and after every step
     // Lab 7 (A4): changed - after every step the garbage collector removes the unreachable
     // heap locations; the state is logged before and after the collection
+    // Lab 8 (A4): changed - the safe collector replaces the unsafe one (Ex9 now prints 20)
     public void allStep() throws MyException {
         PrgState prg = repo.getCrtPrg();
         repo.logPrgStateExec();
@@ -37,7 +38,7 @@ public class Controller {
         while (!prg.getExeStack().isEmpty()) {
             oneStep(prg);
             repo.logPrgStateExec();
-            prg.getHeap().setContent(unsafeGarbageCollector(
+            prg.getHeap().setContent(safeGarbageCollector(  // Lab 8 (A4): the safe collector
                     getAddrFromSymTable(prg.getSymTable().toMap().values()),
                     prg.getHeap().getContent()));
             repo.logPrgStateExec();
