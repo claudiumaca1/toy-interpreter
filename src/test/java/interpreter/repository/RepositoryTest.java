@@ -5,7 +5,9 @@ import interpreter.model.PrgState;
 import interpreter.model.exp.ValueExp;
 import interpreter.model.stmt.NopStmt;
 import interpreter.model.stmt.PrintStmt;
+import interpreter.model.type.IntType;
 import interpreter.model.value.IntValue;
+import interpreter.model.value.RefValue;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -63,5 +65,18 @@ class RepositoryTest {
         String badPath = dir.resolve("no_such_folder").resolve("log.txt").toString();
         IRepository repo = new Repository(PrgState.of(new NopStmt()), badPath);
         assertThrows(RepositoryException.class, repo::logPrgStateExec);
+    }
+
+    // ---- Lab 7 (A4): the Heap section of the log file
+
+    @Test
+    void logHasAHeapSectionAfterTheFileTableSortedByAddress() throws Exception {
+        Path log = dir.resolve("log.txt");
+        PrgState state = PrgState.of(new NopStmt());
+        state.getHeap().allocate(new IntValue(20));
+        state.getHeap().allocate(new RefValue(1, new IntType()));
+        new Repository(state, log.toString()).logPrgStateExec();
+        String text = Files.readString(log);
+        assertTrue(text.contains("FileTable:\nHeap:\n1 --> 20\n2 --> (1, int)\n"));
     }
 }
