@@ -8,14 +8,19 @@ import interpreter.model.exp.*;
 import interpreter.model.stmt.*;
 import interpreter.model.type.BoolType;
 import interpreter.model.type.IntType;
+import interpreter.model.type.RefType;
 import interpreter.model.value.BoolValue;
+import interpreter.model.value.IValue;
 import interpreter.model.value.IntValue;
+import interpreter.model.value.RefValue;
 import interpreter.repository.Repository;
 import interpreter.view.Examples;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -235,5 +240,67 @@ class ControllerTest {
         run(Examples.fileExample(in.toString()));
         String log = Files.readString(dir.resolve("log.txt"));
         assertTrue(log.contains(in.toString()));
+    }
+
+    // ---- Lab 7 (A4): Ex6-Ex10 give the results of section 1.4
+
+    @Test
+    void example6PrintsTheTwoReferences() throws MyException {
+        PrgState state = run(Examples.EX6);
+        assertEquals(Map.of(1, new IntValue(20), 2, new RefValue(1, new IntType())),
+                state.getHeap().getContent());
+        assertEquals(new RefValue(1, new IntType()), state.getSymTable().lookup("v"));
+        assertEquals(new RefValue(2, new RefType(new IntType())), state.getSymTable().lookup("a"));
+        assertEquals(List.of(new RefValue(1, new IntType()), new RefValue(2, new RefType(new IntType()))),
+                state.getOut().toList());
+    }
+
+    @Test
+    void example7Prints20And25() throws MyException {
+        PrgState state = run(Examples.EX7);
+        assertEquals(Map.of(1, new IntValue(20), 2, new RefValue(1, new IntType())),
+                state.getHeap().getContent());
+        assertEquals(List.<IValue>of(new IntValue(20), new IntValue(25)), state.getOut().toList());
+    }
+
+    @Test
+    void example8Prints20And35() throws MyException {
+        PrgState state = run(Examples.EX8);
+        assertEquals(Map.of(1, new IntValue(30)), state.getHeap().getContent());
+        assertEquals(new RefValue(1, new IntType()), state.getSymTable().lookup("v"));
+        assertEquals(List.<IValue>of(new IntValue(20), new IntValue(35)), state.getOut().toList());
+    }
+
+    @Test
+    void example9Prints20WithTheSafeGarbageCollector() throws MyException {
+        PrgState state = run(Examples.EX9);
+        assertEquals(List.<IValue>of(new IntValue(20)), state.getOut().toList());
+        // 1 is kept: it is reachable through a -> 2 -> 1
+        assertEquals(Map.of(1, new IntValue(20), 2, new RefValue(1, new IntType()),
+                3, new IntValue(30)), state.getHeap().getContent());
+    }
+
+    @Test
+    void example10Prints4321And0() throws MyException {
+        PrgState state = run(Examples.EX10);
+        assertEquals(List.<IValue>of(new IntValue(4), new IntValue(3), new IntValue(2),
+                new IntValue(1), new IntValue(0)), state.getOut().toList());
+    }
+
+    @Test
+    void garbageIsRemovedFromTheHeapAfterAStep() throws MyException {
+        // Ref int v; new(v, 20); new(v, 30) - location 1 becomes garbage
+        IStmt p = comp(new VarDeclStmt("v", new RefType(new IntType())),
+                new NewStmt("v", num(20)), new NewStmt("v", num(30)));
+        PrgState state = run(p);
+        assertEquals(Map.of(2, new IntValue(30)), state.getHeap().getContent());
+    }
+
+    @Test
+    void logFileShowsTheHeapBeforeAndAfterTheCollection() throws Exception {
+        run(Examples.EX9);
+        String log = Files.readString(dir.resolve("log.txt"));
+        // before the collection, after new(v, 30): all three locations
+        assertTrue(log.contains("Heap:\n1 --> 20\n2 --> (1, int)\n3 --> 30\n"));
     }
 }

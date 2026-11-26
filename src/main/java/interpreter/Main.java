@@ -14,9 +14,12 @@ import java.util.List;
 public class Main {
     // Lab 6 (A3): changed - one program state, one repository (with its own log file), one
     // controller and one menu command for each example
+    // Lab 7 (A4): changed - the heap examples Ex6-Ex9 and the while example Ex10 are added
+    // (log6.txt ... log10.txt)
     public static void main(String[] args) {
         List<IStmt> programs = List.of(Examples.EX1, Examples.EX2, Examples.EX3,
-                Examples.EX4, Examples.EX5);
+                Examples.EX4, Examples.EX5, Examples.EX6, Examples.EX7, Examples.EX8,
+                Examples.EX9, Examples.EX10);
         TextMenu menu = new TextMenu();
         menu.addCommand(new ExitCommand("0", "exit"));
         for (int i = 0; i < programs.size(); i++) {
