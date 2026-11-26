@@ -8,6 +8,7 @@ import interpreter.repository.IRepository;
 
 import static interpreter.controller.GarbageCollector.getAddrFromSymTable;
 import static interpreter.controller.GarbageCollector.safeGarbageCollector;
+// import static interpreter.controller.GarbageCollector.unsafeGarbageCollector;
 
 public class Controller {
     private final IRepository repo;
@@ -38,6 +39,7 @@ public class Controller {
         while (!prg.getExeStack().isEmpty()) {
             oneStep(prg);
             repo.logPrgStateExec();
+            // prg.getHeap().setContent(unsafeGarbageCollector(
             prg.getHeap().setContent(safeGarbageCollector(  // Lab 8 (A4): the safe collector
                     getAddrFromSymTable(prg.getSymTable().toMap().values()),
                     prg.getHeap().getContent()));
