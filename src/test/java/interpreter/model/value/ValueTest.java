@@ -2,6 +2,7 @@ package interpreter.model.value;
 
 import interpreter.model.type.BoolType;
 import interpreter.model.type.IntType;
+import interpreter.model.type.RefType;
 import interpreter.model.type.StringType;
 import org.junit.jupiter.api.Test;
 
@@ -47,5 +48,27 @@ class ValueTest {
     @Test
     void stringValueIsPrintedBetweenQuotes() {
         assertEquals("\"abc\"", new StringValue("abc").toString());
+    }
+
+    // ---- Lab 7 (A4): reference values
+
+    @Test
+    void refValueHasTheRefTypeOfItsLocationType() {
+        assertEquals(new RefType(new IntType()), new RefValue(1, new IntType()).getType());
+        assertEquals(new RefType(new RefType(new IntType())),
+                new RefValue(10, new RefType(new IntType())).getType());
+    }
+
+    @Test
+    void refValueIsPrintedAsAPair() {
+        assertEquals("(1, int)", new RefValue(1, new IntType()).toString());
+        assertEquals("(2, Ref(int))", new RefValue(2, new RefType(new IntType())).toString());
+    }
+
+    @Test
+    void refValuesWithTheSameAddressAndTypeAreEqual() {
+        assertEquals(new RefValue(1, new IntType()), new RefValue(1, new IntType()));
+        assertNotEquals(new RefValue(1, new IntType()), new RefValue(2, new IntType()));
+        assertNotEquals(new RefValue(1, new IntType()), new RefValue(1, new BoolType()));
     }
 }

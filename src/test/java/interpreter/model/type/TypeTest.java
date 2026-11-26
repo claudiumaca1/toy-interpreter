@@ -2,6 +2,7 @@ package interpreter.model.type;
 
 import interpreter.model.value.BoolValue;
 import interpreter.model.value.IntValue;
+import interpreter.model.value.RefValue;
 import interpreter.model.value.StringValue;
 import org.junit.jupiter.api.Test;
 
@@ -40,5 +41,27 @@ class TypeTest {
     void stringTypeIsNotEqualToIntType() {
         assertEquals(new StringType(), new StringType());
         assertNotEquals(new StringType(), new IntType());
+    }
+
+    // ---- Lab 7 (A4): reference types
+
+    @Test
+    void defaultValueOfARefIsTheNullAddressWithTheInnerType() {
+        assertEquals(new RefValue(0, new IntType()), new RefType(new IntType()).defaultValue());
+        assertEquals(new RefValue(0, new RefType(new IntType())),
+                new RefType(new RefType(new IntType())).defaultValue());
+    }
+
+    @Test
+    void nestedRefTypesAreComparedRecursively() {
+        assertEquals(new RefType(new RefType(new IntType())), new RefType(new RefType(new IntType())));
+        assertNotEquals(new RefType(new RefType(new IntType())), new RefType(new IntType()));
+        assertNotEquals(new RefType(new IntType()), new RefType(new BoolType()));
+        assertNotEquals(new RefType(new IntType()), new IntType());
+    }
+
+    @Test
+    void refTypeIsPrintedWithParentheses() {
+        assertEquals("Ref(Ref(int))", new RefType(new RefType(new IntType())).toString());
     }
 }
