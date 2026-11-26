@@ -14,9 +14,10 @@ import java.io.IOException;
 public record OpenRFileStmt(IExp exp) implements IStmt {
     // Lab 5 (A3): evaluates exp (must be a string), opens that file with a BufferedReader
     // and adds fileName -> reader to the FileTable
+    // Lab 7 (A4): changed - the expression is evaluated with the heap too
     @Override
     public PrgState execute(PrgState state) throws MyException {
-        if (!(exp.eval(state.getSymTable()) instanceof StringValue fileName))
+        if (!(exp.eval(state.getSymTable(), state.getHeap()) instanceof StringValue fileName))
             throw new StatementException("openRFile: " + exp + " is not a string");
         var fileTable = state.getFileTable();
         if (fileTable.isDefined(fileName))

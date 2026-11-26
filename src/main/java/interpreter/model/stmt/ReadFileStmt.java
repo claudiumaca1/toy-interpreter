@@ -14,6 +14,7 @@ import java.io.IOException;
 public record ReadFileStmt(IExp exp, String varName) implements IStmt {
     // Lab 5 (A3): reads the next line of the file given by exp and stores it as an int in
     // varName (0 at the end of the file). Java exceptions become StatementExceptions.
+    // Lab 7 (A4): changed - the expression is evaluated with the heap too
     @Override
     public PrgState execute(PrgState state) throws MyException {
         var symTable = state.getSymTable();
@@ -21,7 +22,7 @@ public record ReadFileStmt(IExp exp, String varName) implements IStmt {
             throw new StatementException("readFile: " + varName + " is not declared");
         if (!(symTable.lookup(varName) instanceof IntValue))
             throw new StatementException("readFile: " + varName + " is not of type int");
-        if (!(exp.eval(symTable) instanceof StringValue fileName))
+        if (!(exp.eval(symTable, state.getHeap()) instanceof StringValue fileName))
             throw new StatementException("readFile: " + exp + " is not a string");
         var fileTable = state.getFileTable();
         if (!fileTable.isDefined(fileName))

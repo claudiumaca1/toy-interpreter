@@ -3,6 +3,7 @@ package interpreter.model.exp;
 import interpreter.exceptions.ExpressionException;
 import interpreter.exceptions.MyException;
 import interpreter.model.adt.IDictionary;
+import interpreter.model.adt.IHeap;
 import interpreter.model.value.BoolValue;
 import interpreter.model.value.IValue;
 import interpreter.model.value.IntValue;
@@ -10,11 +11,12 @@ import interpreter.model.value.IntValue;
 // Lab 5 (A3), rule E5: compares two integer expressions, the result is a bool
 public record RelationalExp(RelOp op, IExp left, IExp right) implements IExp {
     // Lab 5 (A3): evaluates both operands (they must be int) and applies the operator
+    // Lab 7 (A4): changed - gets the heap and passes it on to the operands
     @Override
-    public IValue eval(IDictionary<String, IValue> symTable) throws MyException {
-        if (!(left.eval(symTable) instanceof IntValue(int n1)))
+    public IValue eval(IDictionary<String, IValue> symTable, IHeap heap) throws MyException {
+        if (!(left.eval(symTable, heap) instanceof IntValue(int n1)))
             throw new ExpressionException("first operand is not an integer");
-        if (!(right.eval(symTable) instanceof IntValue(int n2)))
+        if (!(right.eval(symTable, heap) instanceof IntValue(int n2)))
             throw new ExpressionException("second operand is not an integer");
         return new BoolValue(switch (op) {
             case LT -> n1 < n2;

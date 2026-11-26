@@ -8,9 +8,10 @@ import interpreter.model.value.BoolValue;
 
 // rule S5
 public record IfStmt(IExp cond, IStmt thenS, IStmt elseS) implements IStmt {
+    // Lab 7 (A4): changed - the expression is evaluated with the heap too
     @Override
     public PrgState execute(PrgState state) throws MyException {
-        if (!(cond.eval(state.getSymTable()) instanceof BoolValue(boolean c)))
+        if (!(cond.eval(state.getSymTable(), state.getHeap()) instanceof BoolValue(boolean c)))
             throw new StatementException("condition of if is not a boolean");
         if (c)
             state.getExeStack().push(thenS);

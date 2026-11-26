@@ -11,9 +11,10 @@ import java.io.IOException;
 // Lab 5 (A3), rule S10
 public record CloseRFileStmt(IExp exp) implements IStmt {
     // Lab 5 (A3): closes the reader of the file given by exp and removes it from the FileTable
+    // Lab 7 (A4): changed - the expression is evaluated with the heap too
     @Override
     public PrgState execute(PrgState state) throws MyException {
-        if (!(exp.eval(state.getSymTable()) instanceof StringValue fileName))
+        if (!(exp.eval(state.getSymTable(), state.getHeap()) instanceof StringValue fileName))
             throw new StatementException("closeRFile: " + exp + " is not a string");
         var fileTable = state.getFileTable();
         if (!fileTable.isDefined(fileName))

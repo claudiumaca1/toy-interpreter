@@ -3,7 +3,9 @@ package interpreter.model.exp;
 import interpreter.exceptions.ExpressionException;
 import interpreter.exceptions.MyException;
 import interpreter.model.adt.IDictionary;
+import interpreter.model.adt.IHeap;
 import interpreter.model.adt.MyDictionary;
+import interpreter.model.adt.MyHeap;
 import interpreter.model.value.IValue;
 import interpreter.model.value.IntValue;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,21 +15,23 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class VarExpTest {
     private IDictionary<String, IValue> symTable;
+    private IHeap heap;
 
     @BeforeEach
     void setUp() {
         symTable = new MyDictionary<>();
+        heap = new MyHeap();
     }
 
     @Test
     void evalReturnsTheValueOfTheVariable() throws MyException {
         symTable.put("a", new IntValue(2));
-        assertEquals(new IntValue(2), new VarExp("a").eval(symTable));
+        assertEquals(new IntValue(2), new VarExp("a").eval(symTable, heap));
     }
 
     @Test
     void undefinedVariableThrows() {
-        var ex = assertThrows(ExpressionException.class, () -> new VarExp("a").eval(symTable));
+        var ex = assertThrows(ExpressionException.class, () -> new VarExp("a").eval(symTable, heap));
         assertEquals("variable a is not defined", ex.getMessage());
     }
 }
