@@ -208,12 +208,13 @@ class ControllerTest {
     }
 
     @Test
-    void logFileContainsTheFourSectionsInOrder() throws Exception {
+    void logFileContainsTheFiveSectionsInOrder() throws Exception {
         run(Examples.EX1);
         String log = Files.readString(dir.resolve("log.txt"));
         int a = log.indexOf("ExeStack:"), b = log.indexOf("SymTable:"),
-                c = log.indexOf("Out:"), d = log.indexOf("FileTable:");
-        assertTrue(0 <= a && a < b && b < c && c < d);
+                c = log.indexOf("Out:"), d = log.indexOf("FileTable:"),
+                e = log.indexOf("Heap:");                   // Lab 7 (A4): the fifth section
+        assertTrue(0 <= a && a < b && b < c && c < d && d < e);
     }
 
     @Test
@@ -221,7 +222,9 @@ class ControllerTest {
         run(Examples.EX1);          // ex1 has 5 steps: 1 composition, 1 composition, 3 statements
         String log = Files.readString(dir.resolve("log.txt"));
         int sections = log.split("ExeStack:", -1).length - 1;
-        assertEquals(6, sections);  // the initial state + 5 steps
+        // Lab 7 (A4): changed - every step is logged twice, before and after the garbage
+        // collection: the initial state + 2 * 5 steps
+        assertEquals(11, sections);
         assertTrue(log.contains("v --> 2"));
     }
 

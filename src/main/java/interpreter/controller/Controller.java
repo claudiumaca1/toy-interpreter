@@ -6,6 +6,9 @@ import interpreter.model.PrgState;
 import interpreter.model.stmt.IStmt;
 import interpreter.repository.IRepository;
 
+import static interpreter.controller.GarbageCollector.getAddrFromSymTable;
+import static interpreter.controller.GarbageCollector.unsafeGarbageCollector;
+
 public class Controller {
     private final IRepository repo;
     private final boolean displayFlag;
@@ -25,12 +28,18 @@ public class Controller {
 
     // Lab 6 (A3): changed - the state is also written in the log file, at the beginning
     // and after every step
+    // Lab 7 (A4): changed - after every step the garbage collector removes the unreachable
+    // heap locations; the state is logged before and after the collection
     public void allStep() throws MyException {
         PrgState prg = repo.getCrtPrg();
         repo.logPrgStateExec();
         display(prg);
         while (!prg.getExeStack().isEmpty()) {
             oneStep(prg);
+            repo.logPrgStateExec();
+            prg.getHeap().setContent(unsafeGarbageCollector(
+                    getAddrFromSymTable(prg.getSymTable().toMap().values()),
+                    prg.getHeap().getContent()));
             repo.logPrgStateExec();
             display(prg);
         }
